@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OEASYS</title>
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="OEASYS" />
+    <meta name="keywords" content="OEASYS">
+    <link rel="icon" href="" type="image/x-icon">
+    <script src="/pcJScript/jquery.min.js"></script>
+    <script type="text/javascript" src="/Scripts/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/Scripts/bootstrap.min.js"></script>
+
+    <link href="/Content/fonts_googleapis.css" rel="stylesheet" />
+    <link href="/Content/fonts.googleapis.css" rel="stylesheet" />
+    <link href="/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="/Content/waves.min.css" rel="stylesheet" />
+    <link href="/Content/feather.css" rel="stylesheet" />
+    <link href="/Content/font-awesome-n.min.css" rel="stylesheet" />
+
+    <link href="/Content/style.css" rel="stylesheet" />
+    <link href="/Content/widget.css" rel="stylesheet" />
+
+    
+
+
+    <script src="/pcJScript/FaceDetector.js"></script>
+    <script src="/pcJScript/WebcamManager.js"></script>
+
+
+    <style>
+        .pcoded-main-container {
+            margin-top: 15px !important;
+        }
+        /*#loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            opacity: 0.8;
+            background: #e6e6e6;
+        }*/
+    </style>
+    
+
+    
+
+</head>
+
+    <body oncontextmenu="return false;">
+
+    
+
+    <div id="pcoded" class="pcoded">
+        <div class="pcoded-overlay-box"></div>
+        <div class="pcoded-container navbar-wrapper">
+
+            <nav class="" style="background:white;box-shadow: 0 4px 10px rgba(68,71,91,.08);">
+                <div class="continer-justify">
+                    <div class="form-row">
+                        <div class="col-12">
+                            <img class="img-fluid" src="/pcImg/banner-logo.jpg" alt="/pcImg/banner-logo.jpg" style="width:100% !important" />
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="navbar-wrapper" id="navHeader" style="float:left !important">
+                    <ul class="nav">
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="pcoded-main-container">
+                <div class="pcoded-wrapper">
+                    <div class="pcoded-content">
+                        <div class="pcoded-inner-content">
+                            <div class="main-body">
+                                
+
+<form action="/pcExam/pcfrmPhoto/pcPageLoad" id="pcfrmPhotoView" method="post" name="pcfrmPhotoView"><input name="__RequestVerificationToken" type="hidden" value="9nMQWBCb8oJrgo7VgDWAeyIH6B2uek3RhBQ44jym8Q-w5NKHqLHMx2BAQGxg_lxbDeF0QphyAYLbULaPsKGBJdDgbeZyyfYHcU5C5aoJDRs1" />    <script type="text/javascript">
+        /*--------------------------*
+         *Script: To Prevent History*
+         *--------------------------*/
+        window.onload = window.history.forward(0);  //calling function on window onload
+
+    </script>
+    <script>
+        navigator.getMedia = ( navigator.getUserMedia || // use the proper vendor prefix
+                        navigator.webkitGetUserMedia ||
+                        navigator.mozGetUserMedia ||
+                        navigator.msGetUserMedia);
+
+        navigator.getMedia({video: true}, function() {
+            // webcam is available
+        }, function() {
+            window.alert('You are not allowed to continue.');
+            //window.location.href = "/pcExam/pcfrmTimeTable/pcPageLoad";
+        });
+    </script>
+    <script>
+
+        $(document).ready(function(){
+
+            
+            var camStreamWidth = 640;
+            var camStreamHeight = 480;
+
+            var VIEW_WIDTH = 320;
+            var VIEW_HEIGHT = 240;
+
+            var video = document.getElementById("video");
+            var canvas = document.getElementById("canvas");
+
+            canvas.width = VIEW_WIDTH;
+            canvas.height = VIEW_HEIGHT;
+
+            var webcamParams = {
+                video: {
+                    mandatory: {
+                        maxWidth: camStreamWidth,
+                        maxHeight: camStreamHeight,
+                        minWidth: camStreamWidth,
+                        minHeight: camStreamHeight
+                    }
+                }
+            };
+            var webcamMgr = new WebCamManager(
+                {
+                    webcamParams: webcamParams, //Set params for web camera
+                    testVideoMode: false,//true:force use example video for test false:use web camera
+                    videoTag: video
+                }
+            );
+
+            var faceDetector = new FaceDetector(
+                {
+                    video: webcamMgr.getVideoTag(),
+                    flipLeftRight: false,
+                    flipUpsideDown: false
+                }
+            );
+
+            webcamMgr.setOnGetUserMediaCallback(function () {
+                faceDetector.startDetecting();
+            });
+
+            faceDetector.setOnFaceAddedCallback(function (addedFaces, detectedFaces) {
+                for (var i = 0; i < addedFaces.length; i++) {
+                    //  console.log("[facedetector] New face detected id=" + addedFaces[i].faceId + " index=" + addedFaces[i].faceIndex);
+                }
+            });
+
+            faceDetector.setOnFaceLostCallback(function (lostFaces, detectedFaces) {
+                var ctx = canvas.getContext("2d");
+                ctx.clearRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
+
+                for (var i = 0; i < lostFaces.length; i++) {
+                    //alert("face not detected");
+                    document.getElementById("lblMessage").innerHTML = "No Face Detected";
+                    document.getElementById("lblMessage").style.color = "red";
+
+                    document.getElementById("btncapture").style.background = "grey";
+                    document.getElementById("btncapture").style.borderColor = "#5f5a5a";
+
+                    $('#btncapture').attr('disabled', 'true');
+                   // document.getElementById("btncapture").style.visibility = "hidden";
+                    //console.log("[facedetector] Face removed id=" + lostFaces[i].faceId + " index=" + lostFaces[i].faceIndex);
+                }
+            });
+
+            faceDetector.setOnFaceUpdatedCallback(function (detectedFaces) {
+
+                var ctx = canvas.getContext("2d");
+                ctx.clearRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
+
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 3;
+                //ctx.fillStyle = "pink";
+                //ctx.font = "italic small-caps bold 20px arial";
+
+                for (var i = 0; i < detectedFaces.length; i++) {
+                    var face = detectedFaces[i];
+
+                    //alert(face.faceId);
+
+                    ctx.fillText(face.faceId, face.x * VIEW_WIDTH, face.y * VIEW_HEIGHT);
+                    ctx.strokeRect(face.x * VIEW_WIDTH, face.y * VIEW_HEIGHT + 10, face.width * VIEW_WIDTH, face.height * VIEW_HEIGHT);
+
+                    if(detectedFaces.length>1)
+                    {
+                        //document.getElementById("lblMessage").innerHTML = "Multiple Faces Detected";
+                        //document.getElementById("lblMessage").style.color = "red";
+
+                        //document.getElementById("btncapture").style.background = "grey";
+                        //document.getElementById("btncapture").style.borderColor = "#5f5a5a";
+
+                        //$('#btncapture').attr('disabled', 'true');
+                        ////document.getElementById("btncapture").style.visibility = "hidden";
+                    }
+                    else
+                    {
+                        IsFaceDetected = "Y";
+                        document.getElementById("lblMessage").innerHTML = "Face Detected";
+                        document.getElementById("lblMessage").style.color = "green";
+
+                        document.getElementById("btncapture").style.background = "#fe6000";
+                        document.getElementById("btncapture").style.borderColor = "#ce4f02";
+
+                        $('#btncapture').removeAttr("disabled");
+                        //document.getElementById("btncapture").style.visibility = "visible";
+                    }
+                }
+            });
+
+           
+            webcamMgr.startCamera();
+            //  func_Callback();
+        });
+    </script>
+    <div class="page-wrapper">
+        <div class="page-body">
+            <div class="row">
+                
+                <div class="d-flex justify-content-center w-100">
+                    <video id="video" autoplay
+                           style="position:absolute;top:0px;width: 326px; height: 240px;"></video>
+                    
+                    <canvas id="canvas" style="position:absolute;top:0px;"></canvas>
+                </div>
+                    <div class="video-button d-flex justify-content-center w-100" style="margin-top: 234px;">
+                        <button id="btncapture"
+                                class="btn btn-primary btn-md btn-block waves-effect text-center m-b-20"
+                                name="capture"
+                                style="width: 326px;background:grey;border-color:#5f5a5a;"
+                                tabindex="3"
+                                type="button"
+                                disabled>
+                            Capture & Proceed
+                        </button>
+
+
+
+
+                    </div>
+                <div class="d-flex justify-content-center w-100">
+                    
+                    <p> <center><label id="lblMessage"></label></center></p>
+                </div>
+                    
+                </div>
+            </div>
+        </div>
+        <input id="txtAlert"
+               tabindex="-1"
+               hidden="hidden"
+               value="" />
+        <input id="txtPhotoCompairFlag" name="txtPhotoCompairFlag"
+                   tabindex="-1"
+                   hidden="hidden"
+                   value="N" />
+        <input id="txtExaminerContactNo" name="txtExaminerContactNo"
+                       tabindex="-1"
+                       hidden="hidden"
+                       value="9107122564483" />
+     <script type="text/javascript">
+
+        async function getWebCam() {
+            try {
+                const videoSrc = await navigator.mediaDevices.getUserMedia({ video: true });
+                var video = document.getElementById("video");
+                video.srcObject = videoSrc;
+               
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        getWebCam();
+        var capture = document.getElementById("btncapture");
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext('2d');
+
+
+        function getStopWebCam() {
+            try {
+                //const videoSrc = navigator.mediaDevices.getUserMedia({ video: true });
+                var videoEl = document.getElementById("video");
+                videoEl.pause();               
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        $('body').off('click', '#btncapture').on('click', '#btncapture', function () {
+        //capture.addEventListener("click", function (e) {
+            //e.preventDefault();
+            getStopWebCam();
+
+            navigator.getMedia = ( navigator.getUserMedia || // use the proper vendor prefix
+                  navigator.webkitGetUserMedia ||
+                  navigator.mozGetUserMedia ||
+                  navigator.msGetUserMedia);
+
+            navigator.getMedia({video: true}, function() {
+               
+                //context.drawImage(video, 0, 0, 240, 180);
+                jsfunc_CaptureImage(event);
+                
+                //return true;
+            },
+            function() {
+                window.alert('You are not allowed to continue.');
+                //window.location.href = "/pcExam/pcfrmTimeTable/pcPageLoad";
+                return false;
+            });
+        });
+
+       
+    </script>
+     <script>
+
+         var interval;
+
+         function jsfunc_CaptureImage(e) {
+             //event.preventDefault();
+             var PhotoCompairYN = $("#txtPhotoCompairFlag").val();
+             //alert(PhotoCompairYN);
+             if(PhotoCompairYN == "Y"){
+                 $('#btncapture').html('Verifying... Please wait...');
+             }else{
+                 $('#btncapture').html('Please wait...');
+             }
+
+             $('#btncapture').attr('disabled', 'true');
+
+             const video = document.getElementById("video");
+             const canvas = document.createElement("canvas");
+             //var dpr = window.devicePixelRatio || 1;
+             // scale the canvas accordingly
+             canvas.width = video.videoWidth;
+             canvas.height = video.videoHeight;
+             // draw the video at that frame
+             canvas.getContext('2d')
+               .drawImage(video, 0, 0, canvas.width, canvas.height);
+             // convert it to a usable data URL
+             //const dataURL = canvas.toDataURL();
+
+             var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            $.ajax({
+                type: "POST",
+                url: '/pcExam/pcfrmPhoto/pcbtnSave_PhotoCaptureUsingJSonAjax',
+                async: true,
+                cache: false,
+                contentType: "application/json; charset=utf-8",
+                data: '{"txtFileName":"' + image + '"}',
+                dataType: "json",
+                success: function (result, status, xhr) {
+                    if (result == "Session Expired")
+                    {
+                        window.location.href = "/pcBeginFrmErrors/pcfrmErrAccessDenied/pcSessionAbandoned";
+                    }
+                    else if (result=="You are not allowed to continue.")
+                    {
+                        window.alert(result);
+                        window.location.href = "/pcExam/pcfrmTimeTable/pcPageLoad";
+                    }
+                    
+                    else if (result=="success")
+                    {
+                        if(PhotoCompairYN == "Y"){
+                            
+                           interval = setInterval(recursiveAjaxCall, 5000);
+                            //recursiveAjaxCall();
+                        }else{
+                            window.location.href = "/pcExam/pcfrmInstruction/pcPageLoad";
+                        }
+                    }else {
+                        $('#btncapture').html('Capture & Proceed');
+                        $('#btncapture').removeAttr("disabled");
+                        window.alert(result);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    //$('#loader-wrapper').hide();
+                    $('#btncapture').html('Capture & Proceed');
+                    $('#btncapture').removeAttr("disabled");
+                    clearInterval(interval);
+                    //alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText);
+                    window.location.href = "/pcBeginFrmErrors/pcfrmErrAccessDenied/pcSessionAbandoned";
+
+                    return false;
+                }
+            });
+         }
+
+         function recursiveAjaxCall()
+         {
+             var strContactNo = $("#txtExaminerContactNo").val();
+             //debugger;
+             $.ajax({
+                 type: "GET",
+                 url: '/pcExam/pcfrmPhoto/pcExamAllowUsingJSonAjax',
+                 async: true,
+                 cache: false,
+                 contentType: "application/json; charset=utf-8",
+                 dataType: "json",
+                 success: function (result, status, xhr){
+                     //debugger;
+                     //alert(result);
+                     //if (result == "P"){
+                     //    recursiveAjaxCall();
+                     //}else 
+                     //alert(interval);
+                     if(result == "A"){
+                         clearInterval(interval);
+                         window.location.href = "/pcExam/pcfrmInstruction/pcPageLoad";
+                     }else if(result == "R"){
+                         var strMsgAlert = "Your Candidate is rejected. Please contact institute "+ strContactNo +" immediately.";
+                         clearInterval(interval);
+                         window.alert(strMsgAlert);
+                         window.location.href = "/pcExam/pcfrmTimeTable/pcPageLoad";
+                     }else if(result == "E"){
+                         clearInterval(interval);
+                         window.alert("Some Error Occured. Please Try again.");
+                         window.location.href = "/pcExam/pcfrmTimeTable/pcPageLoad";
+                     }else if(result == "S"){
+                         clearInterval(interval);
+                          window.location.href = "/pcBeginFrmErrors/pcfrmErrAccessDenied/pcSessionAbandoned";
+                     }
+                 }
+                 //,
+                 //async:  true
+             });
+         }
+
+            </script>
+     <script type="text/javascript">
+    {
+        if ($('#txtAlert').val().length > 2)
+        {
+            var strAlert = $('#txtAlert').val().replace(/~/g, '\n ');
+            window.alert(strAlert);
+            if(strAlert=="You are not allowed to continue.")
+            {
+                $('#txtAlert').val('');
+                window.location.href = "/pcExam/pcfrmTimeTable/pcPageLoad";
+            }
+            $('#txtAlert').val('');
+
+        }
+    }
+   </script>
+</form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="navbar header-navbar pcoded-header iscollapsed"
+                 header-theme="themelight1"
+                 pcoded-header-position="relative"
+                 style="background: #fb7e32; min-height: auto;  bottom: 0; top: auto; z-index: 9999; -webkit-box-shadow: 0 -6px 3px 0 rgba(69,90,100,.09);
+                        box-shadow: 0 -6px 3px 0 rgba(69,90,100,.09);  width: 100%; position:absolute !important;">
+                <div class="navbar-wrapper">
+                    <div class="navbar-container container-fluid" style="height:32px">
+                        <h3 class="text-center" style="font-size:18px; margin-top:4px; color:white; font-weight:bold;">
+                            <a href="http://www.pccenterindia.com/">
+                                <span style="font-size:15px"> Powered By</span> PC TECHNOWLEDGE CENTER PVT. LTD.
+                            </a>
+                        </h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <script src="/" defer=""></script>
+    <script src="/pcJScript/pcjsscriptCommonAction.js"></script>
+
+        <script src="/pcJScript/FaceDetector.js"></script>
+        <script src="/pcJScript/WebcamManager.js"></script>
+
+</body>
+</html>
